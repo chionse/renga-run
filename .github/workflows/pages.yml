@@ -1,0 +1,15 @@
+# main に入ったものを gh-pages に写す。公開されるのは gh-pages の中身。
+name: gh-pages に写す
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: git push origin HEAD:refs/heads/gh-pages --force
