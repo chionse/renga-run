@@ -230,7 +230,7 @@ footer a{color:var(--ink-2)}
     <span class="side" style="padding:0"><span><span class="who">自分</span><b id="me-n">0</b>枚</span><span class="ote" id="me-ote"></span></span>
     <span class="acts">
       <button type="button" class="btn sm" id="g-go">読み始める</button>
-      <button type="button" class="btn sm" id="g-sound" aria-pressed="true">音あり</button>
+      <button type="button" class="btn sm" id="g-sound" aria-pressed="true">音：鳴る</button>
       <button type="button" class="btn sm" id="g-quit">やめる</button>
     </span>
   </div>
@@ -410,15 +410,32 @@ async function randomDeck(){
 
 /* ---------- 音（札を払う音） ---------- */
 let audio = null, sound = store.get("sound") !== false;
-function slap(strong){
-  if (!sound) return;
+// スマホのブラウザは、指で触れたその場でしか音の装置を動かせない。
+// だからボタンに触れた瞬間に起こしておく（札を集める await のあとでは遅い）。
+function wakeAudio(){
   try {
     audio = audio || new (window.AudioContext || window.webkitAudioContext)();
-    const len = Math.floor(audio.sampleRate * .09), buf = audio.createBuffer(1, len, audio.sampleRate), d = buf.getChannelData(0);
-    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 4);
-    const src = audio.createBufferSource(), f = audio.createBiquadFilter(), g = audio.createGain();
-    src.buffer = buf; f.type = "lowpass"; f.frequency.value = strong ? 2600 : 1400; g.gain.value = strong ? .5 : .25;
-    src.connect(f).connect(g).connect(audio.destination); src.start();
+    if (audio.state === "suspended") audio.resume();
+  } catch (e) {}
+}
+document.addEventListener("pointerdown", wakeAudio, { capture: true });
+document.addEventListener("keydown", wakeAudio, { capture: true });
+// 札を払う音：乾いた「パシッ」と、畳に当たる低い「トン」を重ねる
+function slap(strong){
+  if (!sound || !audio) return;
+  try {
+    if (audio.state === "suspended") audio.resume();
+    const t = audio.currentTime + .01, sr = audio.sampleRate;
+    const len = Math.floor(sr * .12), buf = audio.createBuffer(1, len, sr), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 6);
+    const src = audio.createBufferSource(), bp = audio.createBiquadFilter(), g = audio.createGain();
+    src.buffer = buf; bp.type = "bandpass"; bp.frequency.value = strong ? 2400 : 1700; bp.Q.value = .8;
+    g.gain.value = strong ? 1.1 : .6;
+    src.connect(bp).connect(g).connect(audio.destination); src.start(t);
+    const o = audio.createOscillator(), og = audio.createGain();
+    o.type = "sine"; o.frequency.setValueAtTime(strong ? 150 : 120, t); o.frequency.exponentialRampToValueAtTime(55, t + .12);
+    og.gain.setValueAtTime(strong ? .7 : .35, t); og.gain.exponentialRampToValueAtTime(.001, t + .15);
+    o.connect(og).connect(audio.destination); o.start(t); o.stop(t + .16);
   } catch (e) {}
 }
 
@@ -641,7 +658,6 @@ $("h-start").addEventListener("click", async () => {
   try {
     const deck = selected("src") === "daily" ? await dailyDeck() : await randomDeck();
     lastDeck = deck;
-    slap(false);  // 音を使えるようにしておく（端末によっては最初の操作のときしか鳴らせない）
     begin(deck, selected("lv"));
   } catch (e) {
     err.textContent = selected("src") === "daily"
@@ -654,8 +670,8 @@ $("h-start").addEventListener("click", async () => {
 });
 $("g-go").addEventListener("click", () => { if (G && G.phase === "anki") startReading(); });
 $("g-quit").addEventListener("click", () => { if (!G) return; clearTimers(); G = null; showRecord(); show("home"); });
-function soundLabel(){ $("g-sound").textContent = sound ? "音あり" : "音なし"; $("g-sound").setAttribute("aria-pressed", String(sound)); }
-$("g-sound").addEventListener("click", () => { sound = !sound; store.set("sound", sound); soundLabel(); });
+function soundLabel(){ $("g-sound").textContent = sound ? "音：鳴る" : "音：鳴らない"; $("g-sound").setAttribute("aria-pressed", String(sound)); }
+$("g-sound").addEventListener("click", () => { sound = !sound; store.set("sound", sound); soundLabel(); slap(true); });
 $("r-again").addEventListener("click", () => { if (lastDeck) begin(lastDeck, G ? G.lvKey : selected("lv")); });
 $("r-home").addEventListener("click", () => { showRecord(); show("home"); });
 $("r-copy").addEventListener("click", () => {
