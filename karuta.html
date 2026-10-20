@@ -7,41 +7,41 @@
 <meta name="description" content="ウィキペディアの記事の書き出しを読み札に、記事名を取り札にした競技かるた。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Old+Mincho:wght@400;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kaisei+Tokumin:wght@500;700;800&display=swap">
 <style>
 /* 畳の上に札を並べる。札は生成りの地に緑の刷り枠、裏は緑。伏せ字は組版の下駄（〓）。 */
 :root{
-  --paper:#F2EFE7;
-  --paper-2:#E7E2D6;
-  --ink:#141414;
-  --ink-2:#64605A;
-  --rule:#141414;
-  --hair:#CFC8B8;
-  --link:#2440A0;
-  --seal:#C8432D;
-  --tatami:#C8BB86;
-  --heri:#1E2420;
-  --fuda:#F6F1E1;
+  --paper:#F6F3EC;
+  --paper-2:#ECE7DC;
+  --ink:#1B1A17;
+  --ink-2:#6E695F;
+  --rule:#1B1A17;
+  --hair:#D6CFC1;
+  --link:#3253A0;
+  --seal:#C53D43;
+  --tatami:#C9BC88;
+  --heri:#22281F;
+  --fuda:#FBF7EA;
   --fuda-ink:#151310;
   --fuda-frame:#5C7853;
-  --yomi:#141414;
-  --yomi-ink:#F2EFE7;
-  --display:"Dela Gothic One","Hiragino Sans","Yu Gothic",sans-serif;
-  --mincho:"Zen Old Mincho","Hiragino Mincho ProN","Yu Mincho","YuMincho",serif;
+  --yomi:#1B1A17;
+  --yomi-ink:#F6F3EC;
+  --display:"Kaisei Tokumin","Hiragino Mincho ProN","Yu Mincho","YuMincho",serif;
+  --mincho:"Kaisei Tokumin","Hiragino Mincho ProN","Yu Mincho","YuMincho",serif;
   --gothic:-apple-system,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans JP",sans-serif;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --paper:#121211;--paper-2:#1D1C1A;--ink:#EDE9DF;--ink-2:#9E998F;--rule:#EDE9DF;--hair:#34322E;
-    --link:#93A9F2;--seal:#EE7A62;--tatami:#6E6645;--heri:#0B0D0B;--fuda:#DCD5C0;--fuda-frame:#4E6847;
-    --yomi:#000;--yomi-ink:#EDE9DF;color-scheme:dark;
+    --paper:#171614;--paper-2:#211F1C;--ink:#ECE7DC;--ink-2:#A39D91;--rule:#ECE7DC;--hair:#38352F;
+    --link:#9DB3EC;--seal:#E46A6F;--tatami:#6E6645;--heri:#0B0D0B;--fuda:#E2DBC8;--fuda-frame:#4E6847;
+    --yomi:#050505;--yomi-ink:#ECE7DC;color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --paper:#121211;--paper-2:#1D1C1A;--ink:#EDE9DF;--ink-2:#9E998F;--rule:#EDE9DF;--hair:#34322E;
-  --link:#93A9F2;--seal:#EE7A62;--tatami:#6E6645;--heri:#0B0D0B;--fuda:#DCD5C0;--fuda-frame:#4E6847;
-  --yomi:#000;--yomi-ink:#EDE9DF;color-scheme:dark;
+  --paper:#171614;--paper-2:#211F1C;--ink:#ECE7DC;--ink-2:#A39D91;--rule:#ECE7DC;--hair:#38352F;
+  --link:#9DB3EC;--seal:#E46A6F;--tatami:#6E6645;--heri:#0B0D0B;--fuda:#E2DBC8;--fuda-frame:#4E6847;
+  --yomi:#050505;--yomi-ink:#ECE7DC;color-scheme:dark;
 }
 
 *{box-sizing:border-box}
@@ -51,56 +51,64 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--gothic)
 .wrap{max-width:46rem;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 p,li,dd{word-break:auto-phrase}
 a{color:var(--link)}
-h1,h2,h3{font-family:var(--mincho);font-weight:700;line-height:1.4}
+h1,h2,h3{font-family:var(--mincho);font-weight:700;line-height:1.35}
 button{font:inherit;color:inherit}
-.btn{font-family:var(--mincho);font-weight:700;font-size:1rem;padding:.55em 1.2em;border:2px solid var(--ink);background:transparent;color:var(--ink);border-radius:0;cursor:pointer}
+.btn{font-family:var(--mincho);font-weight:700;font-size:1rem;padding:.6em 1.3em;border:1.5px solid var(--ink);background:transparent;color:var(--ink);border-radius:999px;cursor:pointer;transition:background-color .15s,color .15s}
 .btn:hover{background:var(--ink);color:var(--paper)}
 .btn.primary{background:var(--ink);color:var(--paper)}
-.btn.primary:hover{background:var(--link);border-color:var(--link)}
-.btn.big{font-size:1.25rem;padding:.7em 1.6em}
-.btn.sm{font-size:.85rem;padding:.2em .7em;border-width:1px}
+.btn.primary:hover{background:var(--seal);border-color:var(--seal)}
+.btn.big{font-size:1.15rem;padding:.75em 2em}
+.btn.sm{font-size:.82rem;padding:.25em .85em;border-width:1px}
 .btn:disabled{opacity:.35;cursor:default}
-.textbtn{background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.25em;cursor:pointer;font-size:.95rem}
-button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--link);outline-offset:3px}
+.bottom .btn{border-color:currentColor}
+.textbtn{background:none;border:0;padding:0;color:var(--ink-2);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.25em;cursor:pointer;font-size:.92rem}
+button:focus-visible,a:focus-visible,input:focus-visible,label:focus-within{outline:2px solid var(--link);outline-offset:3px}
 .row{display:flex;flex-wrap:wrap;align-items:center;gap:.8rem 1.4rem}
 .err{color:var(--seal);font-size:.9rem;margin:.8rem 0 0}
-.tcy{text-combine-upright:all}
 
-/* はじめ：縦組みの扉に見本の札を一枚 */
-.tobira{display:flex;justify-content:center;border-bottom:2px solid var(--rule);padding:clamp(1.5rem,5vw,3rem) 16px clamp(1.5rem,4vw,2.5rem)}
-.v{writing-mode:vertical-rl;inline-size:clamp(20rem,50svh,29rem);width:fit-content;max-width:100%}
-.v > * + *{margin-block-start:clamp(.9rem,4vw,1.8rem)}
-.brand{font-family:var(--display);font-weight:400;font-size:clamp(3.4rem,15vw,5.6rem);line-height:1.05;margin:0;white-space:nowrap}
-.brand span{display:block}
-.brand span + span{padding-inline-start:2.2em}
-.v-ex{font-family:var(--mincho);font-size:1.05rem;line-height:1.7;color:var(--ink-2);margin:0;max-inline-size:20em}
-.v-ex .geta{color:var(--seal)}
-.v .fuda{writing-mode:vertical-rl;inline-size:8.2rem;block-size:4.8rem;margin-block-start:auto;transform:rotate(-4deg);cursor:default}
-
-.home{padding-block:1.6rem 3rem}
-.intro{margin:0}
-.sec{margin-top:2.6rem;border-top:2px solid var(--rule);padding-top:1rem;display:grid;grid-template-columns:minmax(0,7rem) minmax(0,1fr);gap:.5rem 2rem}
-@media (max-width:640px){.sec{grid-template-columns:minmax(0,1fr)}}
-.sec h2{font-family:var(--display);font-weight:400;font-size:1.5rem;margin:0;line-height:1.3}
-.choice{border:0;margin:0;padding:0}
-.choice label{display:grid;grid-template-columns:1.4rem minmax(0,1fr);gap:.8rem;align-items:start;padding:.6rem 0;border-bottom:1px solid var(--hair);cursor:pointer}
-.choice input{appearance:none;-webkit-appearance:none;width:1.1rem;height:1.1rem;border:2px solid var(--ink);margin:.35rem 0 0;border-radius:0;background:transparent;cursor:pointer}
-.choice input:checked{background:var(--ink);box-shadow:inset 0 0 0 2px var(--paper)}
-.choice b{font-family:var(--mincho);font-weight:900;font-size:1.25rem;line-height:1.4}
-.choice small{display:block;color:var(--ink-2);font-size:.85rem;line-height:1.6}
+/* はじめ */
+.top{padding-block:clamp(1.8rem,6vw,3rem) 0}
+.brand{font-family:var(--mincho);font-weight:800;font-size:clamp(1.8rem,8.4vw,3.4rem);letter-spacing:.02em;line-height:1.15;margin:0}
+.lead{margin:.6rem 0 0;color:var(--ink-2);max-width:32em}
+.brand span{display:inline-block}
+.tatami.hero{overflow:hidden}
+.spread{position:relative;height:13.5rem;margin:0 auto;max-width:30rem}
+.spread .fuda{position:absolute;width:5rem;height:8rem;cursor:default}
+.spread .fuda:nth-child(1){left:4%;top:2.4rem;transform:rotate(-7deg)}
+.spread .fuda:nth-child(2){left:24%;top:1.2rem;transform:rotate(3deg)}
+.spread .fuda:nth-child(3){left:44%;top:2.8rem;transform:rotate(-2deg)}
+.spread .fuda:nth-child(4){left:64%;top:.9rem;transform:rotate(6deg)}
+.spread .fuda:nth-child(5){left:79%;top:3.6rem;transform:rotate(24deg) translateX(18%);box-shadow:inset 0 0 0 4px var(--fuda),inset 0 0 0 5px var(--fuda-frame),0 10px 18px rgb(0 0 0 / .25)}
+.sample{background:var(--yomi);color:var(--yomi-ink);font-family:var(--mincho);font-weight:700;font-size:1.05rem;line-height:1.8;padding:.8rem 1rem;margin:0;border-radius:4px}
+.sample .geta{color:var(--seal)}
+.sample small{display:block;font-family:var(--gothic);font-weight:400;font-size:.78rem;opacity:.6;margin-bottom:.15rem}
+.home{padding-block:1.4rem 3rem}
+.sec{margin-top:2.6rem}
+.sec h2{font-size:1.3rem;margin:0 0 .7rem}
+.choice{border:0;margin:0;padding:0;display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:.6rem}
+.choice label{position:relative;display:block;padding:.8rem .8rem .7rem;border:1.5px solid var(--hair);border-radius:6px;cursor:pointer;background:var(--paper);transition:border-color .15s}
+.choice label:hover{border-color:var(--ink-2)}
+.choice label:has(input:checked){border-color:var(--ink);background:var(--paper-2);box-shadow:inset 0 0 0 1px var(--ink)}
+.choice input{position:absolute;opacity:0;pointer-events:none}
+.choice b{display:block;font-family:var(--mincho);font-weight:800;font-size:1.3rem;line-height:1.3}
+.choice small{display:block;color:var(--ink-2);font-size:.8rem;line-height:1.55;margin-top:.25rem}
 .home .start{margin-top:2rem}
-.record{font-family:var(--mincho);font-size:1rem;margin:1rem 0 0}
+.record{font-family:var(--mincho);font-weight:700;margin:1rem 0 0}
 .rules ol{list-style:none;margin:0;padding:0;counter-reset:n}
-.rules li{counter-increment:n;display:grid;grid-template-columns:2.2rem minmax(0,1fr);gap:.6rem;padding:.5rem 0;border-bottom:1px solid var(--hair)}
-.rules li::before{content:counter(n,cjk-ideographic);font-family:var(--display);font-size:1.3rem;line-height:1.3}
-.rules p{color:var(--ink-2);font-size:.9rem;margin:1rem 0 0}
-.other{font-family:var(--mincho);font-size:1.05rem;margin:0}
-.other a{font-weight:700}
-.other small{display:block;font-family:var(--gothic);font-size:.85rem;color:var(--ink-2)}
+.rules li{counter-increment:n;display:grid;grid-template-columns:2rem minmax(0,1fr);gap:.4rem;padding:.55rem 0;border-top:1px solid var(--hair)}
+.rules li::before{content:counter(n,cjk-ideographic);font-family:var(--mincho);font-weight:800;font-size:1.15rem;line-height:1.55;color:var(--seal)}
+.rules p{color:var(--ink-2);font-size:.9rem;margin:.8rem 0 0}
+.other{display:flex;align-items:center;gap:1rem;text-decoration:none;color:var(--ink);padding:1rem;border:1px solid var(--hair);border-radius:4px;background:var(--paper-2)}
+.other:hover{border-color:var(--ink)}
+.other b{font-family:var(--mincho);font-size:1.15rem;display:block}
+.other small{color:var(--ink-2);font-size:.85rem}
+.other .mini{display:flex;flex-direction:column;gap:3px;flex:none}
+.other .mini i{display:block;width:2.4rem;height:.55rem;background:var(--c)}
+.other .mini i:nth-child(2){background:#FCFAF4;height:1.4rem;box-shadow:0 1px 2px rgb(0 0 0 / .15)}
 
 /* 対局 */
 .side{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;padding-block:.45rem;font-size:.9rem;color:var(--ink-2)}
-.side b{font-family:var(--display);font-weight:400;font-size:1.7rem;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;margin:0 .2em}
+.side b{font-family:var(--mincho);font-weight:800;font-size:1.7rem;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;margin:0 .2em}
 .side .who{font-family:var(--mincho);font-weight:700;color:var(--ink)}
 .side .ote{font-size:.8rem}
 .yomi-band{background:var(--yomi);color:var(--yomi-ink)}
@@ -137,19 +145,19 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 /* 結果 */
 .res{padding-block:2.5rem 3.5rem}
 .res-kind{font-family:var(--mincho);color:var(--ink-2);margin:0;letter-spacing:.1em}
-.res-title{font-family:var(--display);font-weight:400;font-size:clamp(4rem,20vw,7rem);line-height:1.1;margin:.2rem 0 0;color:var(--seal)}
+.res-title{font-family:var(--mincho);font-weight:800;font-size:clamp(3.4rem,16vw,5.5rem);line-height:1.1;margin:.1rem 0 0;color:var(--seal)}
 .res-title.lose{color:var(--ink-2)}
 .res-meta{margin:.6rem 0 0;font-family:var(--mincho);font-weight:700;font-size:1.05rem}
-.res h3{font-family:var(--display);font-weight:400;font-size:1.3rem;margin:2.4rem 0 .6rem}
-.kiroku{list-style:none;margin:0;padding:0;border-top:2px solid var(--rule)}
+.res h3{font-size:1.15rem;margin:2.4rem 0 .6rem}
+.kiroku{list-style:none;margin:0;padding:0;border-top:1px solid var(--hair)}
 .kiroku li{padding:.6rem 0;border-bottom:1px solid var(--hair);font-size:.92rem;line-height:1.7}
 .kiroku .t{font-family:var(--mincho);font-weight:900;font-size:1.05rem;color:var(--ink)}
 .kiroku .by{float:right;margin-left:1rem;color:var(--ink-2);font-size:.82rem}
 .kiroku .by.me{color:var(--seal)}
 .kiroku .s{display:block;color:var(--ink-2)}
-.share{font:inherit;font-size:.9rem;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere;background:var(--paper-2);padding:.9rem 1rem;margin:0 0 .8rem;border-left:4px solid var(--ink)}
+.share{font:inherit;font-size:.9rem;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere;background:var(--paper-2);padding:.9rem 1rem;margin:0 0 .8rem;border-radius:4px}
 
-footer{border-top:2px solid var(--rule);padding-block:1.2rem 2rem;font-size:.8rem;color:var(--ink-2)}
+footer{padding-block:1.2rem 2rem;border-top:1px solid var(--hair);font-size:.8rem;color:var(--ink-2)}
 footer p{margin:0}
 footer a{color:var(--ink-2)}
 @media (prefers-reduced-motion: reduce){.fuda{transition:none}.fuda.miss{animation:none}}
@@ -158,19 +166,19 @@ footer a{color:var(--ink-2)}
 <body>
 
 <section id="home" class="view">
-  <div class="tobira">
-    <div class="v">
-      <h1 class="brand"><span>ウィキペディア</span><span>かるた</span></h1>
-      <p class="v-ex"><span class="geta">〓〓</span>は、日本の伝統芸能の一つで、室町時代に観阿弥・世阿弥の父子によって大成された……</p>
-      <span class="fuda s1" aria-hidden="true">能</span>
-    </div>
+  <div class="wrap top">
+    <h1 class="brand"><span>ウィキペディア</span><span>かるた</span></h1>
+    <p class="lead">読み札は記事の書き出し、取り札は記事の名前。題の言葉は〓で伏せてあり、読み上げは一文字ずつ進む。何の記事か分かったところで札を払う。</p>
   </div>
+  <div class="tatami hero" style="margin-top:1.4rem" aria-hidden="true"><div class="wrap"><div class="spread">
+    <span class="fuda s3">ONE PIECE</span><span class="fuda s1">寿司</span><span class="fuda s2">富士山</span><span class="fuda s2">新幹線</span><span class="fuda s1">能</span>
+  </div></div></div>
   <div class="wrap home">
-    <p class="intro">読み札はウィキペディアの記事の書き出し、取り札は記事の名前。題の言葉は〓で伏せてあり、読み上げは一文字ずつ進む。何の記事か分かったところで札を払う。向かいには相手が一人座っている。</p>
+    <p class="sample"><small>読み手</small><span class="geta">〓〓</span>は、日本の伝統芸能の一つで、室町時代に観阿弥・世阿弥の父子によって大成された……</p>
 
     <section class="sec">
       <h2>札</h2>
-      <fieldset class="choice">
+      <fieldset class="choice" style="--n:2">
         <label><input type="radio" name="src" value="daily" checked><span><b>今日の札</b><small>おととい、よく読まれた記事から。今日はみんな同じ札。</small></span></label>
         <label><input type="radio" name="src" value="random"><span><b>でたらめ札</b><small>ウィキペディアからでたらめに引いた記事。だいたい知らない記事。</small></span></label>
       </fieldset>
@@ -205,8 +213,7 @@ footer a{color:var(--ink-2)}
     </section>
 
     <section class="sec">
-      <h2>別の遊び</h2>
-      <p class="other"><a href="./">連歌ラン</a><small>本文のリンクだけで、記事から記事へ渡る。</small></p>
+      <a class="other" href="./"><span class="mini" aria-hidden="true"><i style="--c:#7A4E9A"></i><i></i><i style="--c:#7A4E9A;height:.35rem"></i></span><span><b>連歌ラン</b><small>本文のリンクだけで記事から記事へ渡り、短冊をつなぐ。</small></span></a>
     </section>
   </div>
 </section>
