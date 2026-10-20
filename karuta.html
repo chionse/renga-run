@@ -7,35 +7,41 @@
 <meta name="description" content="ウィキペディアの記事の書き出しを読み札に、記事名を取り札にした競技かるた。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Old+Mincho:wght@400;700;900&display=swap">
 <style>
 /* 畳の上に札を並べる。札は生成りの地に緑の刷り枠、裏は緑。伏せ字は組版の下駄（〓）。 */
 :root{
-  --paper:#F4F2EC;
-  --paper-2:#EAE6DC;
-  --ink:#22201C;
-  --ink-2:#6B665D;
-  --rule:#CFC9BC;
-  --link:#2A4F86;
-  --seal:#A8382B;
+  --paper:#F2EFE7;
+  --paper-2:#E7E2D6;
+  --ink:#141414;
+  --ink-2:#64605A;
+  --rule:#141414;
+  --hair:#CFC8B8;
+  --link:#2440A0;
+  --seal:#C8432D;
   --tatami:#C8BB86;
-  --heri:#2B3329;
-  --fuda:#F5F0DF;
-  --fuda-ink:#1F1C17;
+  --heri:#1E2420;
+  --fuda:#F6F1E1;
+  --fuda-ink:#151310;
   --fuda-frame:#5C7853;
-  --mincho:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+  --yomi:#141414;
+  --yomi-ink:#F2EFE7;
+  --display:"Dela Gothic One","Hiragino Sans","Yu Gothic",sans-serif;
+  --mincho:"Zen Old Mincho","Hiragino Mincho ProN","Yu Mincho","YuMincho",serif;
   --gothic:-apple-system,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans JP",sans-serif;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --paper:#191814;--paper-2:#23211C;--ink:#E4E0D6;--ink-2:#A39D90;--rule:#3A3730;
-    --link:#9DB7DF;--seal:#DC7563;--tatami:#6E6645;--heri:#121611;--fuda:#DCD5C0;--fuda-frame:#4E6847;color-scheme:dark;
+    --paper:#121211;--paper-2:#1D1C1A;--ink:#EDE9DF;--ink-2:#9E998F;--rule:#EDE9DF;--hair:#34322E;
+    --link:#93A9F2;--seal:#EE7A62;--tatami:#6E6645;--heri:#0B0D0B;--fuda:#DCD5C0;--fuda-frame:#4E6847;
+    --yomi:#000;--yomi-ink:#EDE9DF;color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --paper:#191814;--paper-2:#23211C;--ink:#E4E0D6;--ink-2:#A39D90;--rule:#3A3730;
-  --link:#9DB7DF;--seal:#DC7563;--tatami:#6E6645;--heri:#121611;--fuda:#DCD5C0;--fuda-frame:#4E6847;color-scheme:dark;
+  --paper:#121211;--paper-2:#1D1C1A;--ink:#EDE9DF;--ink-2:#9E998F;--rule:#EDE9DF;--hair:#34322E;
+  --link:#93A9F2;--seal:#EE7A62;--tatami:#6E6645;--heri:#0B0D0B;--fuda:#DCD5C0;--fuda-frame:#4E6847;
+  --yomi:#000;--yomi-ink:#EDE9DF;color-scheme:dark;
 }
 
 *{box-sizing:border-box}
@@ -47,57 +53,76 @@ p,li,dd{word-break:auto-phrase}
 a{color:var(--link)}
 h1,h2,h3{font-family:var(--mincho);font-weight:700;line-height:1.4}
 button{font:inherit;color:inherit}
-.btn{font-size:.95rem;padding:.5em 1.1em;border:1px solid var(--ink);background:var(--paper);color:var(--ink);border-radius:0;cursor:pointer}
-.btn:hover{background:var(--paper-2)}
+.btn{font-family:var(--mincho);font-weight:700;font-size:1rem;padding:.55em 1.2em;border:2px solid var(--ink);background:transparent;color:var(--ink);border-radius:0;cursor:pointer}
+.btn:hover{background:var(--ink);color:var(--paper)}
 .btn.primary{background:var(--ink);color:var(--paper)}
-.btn.primary:hover{opacity:.85}
-.btn.sm{font-size:.85rem;padding:.25em .7em}
-.btn:disabled{opacity:.4;cursor:default}
-.textbtn{background:none;border:0;padding:0;color:var(--link);text-decoration:underline;text-underline-offset:.2em;cursor:pointer;font-size:.95rem}
-button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--link);outline-offset:2px}
-.row{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem 1.2rem}
-.err{color:var(--seal);font-size:.9rem;margin:.6rem 0 0}
+.btn.primary:hover{background:var(--link);border-color:var(--link)}
+.btn.big{font-size:1.25rem;padding:.7em 1.6em}
+.btn.sm{font-size:.85rem;padding:.2em .7em;border-width:1px}
+.btn:disabled{opacity:.35;cursor:default}
+.textbtn{background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.25em;cursor:pointer;font-size:.95rem}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--link);outline-offset:3px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:.8rem 1.4rem}
+.err{color:var(--seal);font-size:.9rem;margin:.8rem 0 0}
+.tcy{text-combine-upright:all}
 
-/* はじめ */
-.home{padding-block:2.5rem 3rem}
-.brand{font-size:2.1rem;letter-spacing:.04em;margin:0}
-.intro{margin:.8rem 0 0}
-.home h2{font-size:1.15rem;margin:2.2rem 0 .5rem}
+/* はじめ：縦組みの扉に見本の札を一枚 */
+.tobira{display:flex;justify-content:center;border-bottom:2px solid var(--rule);padding:clamp(1.5rem,5vw,3rem) 16px clamp(1.5rem,4vw,2.5rem)}
+.v{writing-mode:vertical-rl;inline-size:clamp(20rem,50svh,29rem);width:fit-content;max-width:100%}
+.v > * + *{margin-block-start:clamp(.9rem,4vw,1.8rem)}
+.brand{font-family:var(--display);font-weight:400;font-size:clamp(3.4rem,15vw,5.6rem);line-height:1.05;margin:0;white-space:nowrap}
+.brand span{display:block}
+.brand span + span{padding-inline-start:2.2em}
+.v-ex{font-family:var(--mincho);font-size:1.05rem;line-height:1.7;color:var(--ink-2);margin:0;max-inline-size:20em}
+.v-ex .geta{color:var(--seal)}
+.v .fuda{writing-mode:vertical-rl;inline-size:8.2rem;block-size:4.8rem;margin-block-start:auto;transform:rotate(-4deg);cursor:default}
+
+.home{padding-block:1.6rem 3rem}
+.intro{margin:0}
+.sec{margin-top:2.6rem;border-top:2px solid var(--rule);padding-top:1rem;display:grid;grid-template-columns:minmax(0,7rem) minmax(0,1fr);gap:.5rem 2rem}
+@media (max-width:640px){.sec{grid-template-columns:minmax(0,1fr)}}
+.sec h2{font-family:var(--display);font-weight:400;font-size:1.5rem;margin:0;line-height:1.3}
 .choice{border:0;margin:0;padding:0}
-.choice label{display:flex;gap:.6rem;align-items:baseline;padding:.25rem 0;cursor:pointer}
-.choice input{accent-color:var(--ink);flex:none;transform:translateY(.1em)}
-.choice small{color:var(--ink-2);font-size:.85rem}
-.home .row{margin-top:1.6rem}
-.record{font-size:.92rem;margin:1rem 0 0}
-.rules ul{margin:0;padding-left:1.2em}
-.rules li{margin:.25rem 0}
-.rules p{color:var(--ink-2);font-size:.92rem;margin:1rem 0 0}
-.example{font-family:var(--mincho);background:var(--paper-2);padding:.6rem .9rem;margin:.6rem 0 0}
+.choice label{display:grid;grid-template-columns:1.4rem minmax(0,1fr);gap:.8rem;align-items:start;padding:.6rem 0;border-bottom:1px solid var(--hair);cursor:pointer}
+.choice input{appearance:none;-webkit-appearance:none;width:1.1rem;height:1.1rem;border:2px solid var(--ink);margin:.35rem 0 0;border-radius:0;background:transparent;cursor:pointer}
+.choice input:checked{background:var(--ink);box-shadow:inset 0 0 0 2px var(--paper)}
+.choice b{font-family:var(--mincho);font-weight:900;font-size:1.25rem;line-height:1.4}
+.choice small{display:block;color:var(--ink-2);font-size:.85rem;line-height:1.6}
+.home .start{margin-top:2rem}
+.record{font-family:var(--mincho);font-size:1rem;margin:1rem 0 0}
+.rules ol{list-style:none;margin:0;padding:0;counter-reset:n}
+.rules li{counter-increment:n;display:grid;grid-template-columns:2.2rem minmax(0,1fr);gap:.6rem;padding:.5rem 0;border-bottom:1px solid var(--hair)}
+.rules li::before{content:counter(n,cjk-ideographic);font-family:var(--display);font-size:1.3rem;line-height:1.3}
+.rules p{color:var(--ink-2);font-size:.9rem;margin:1rem 0 0}
+.other{font-family:var(--mincho);font-size:1.05rem;margin:0}
+.other a{font-weight:700}
+.other small{display:block;font-family:var(--gothic);font-size:.85rem;color:var(--ink-2)}
 
 /* 対局 */
 .side{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;padding-block:.45rem;font-size:.9rem;color:var(--ink-2)}
-.side b{font-family:var(--mincho);font-size:1.35rem;color:var(--ink);font-variant-numeric:tabular-nums;margin:0 .15em}
-.side .who{font-family:var(--mincho);color:var(--ink)}
+.side b{font-family:var(--display);font-weight:400;font-size:1.7rem;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;margin:0 .2em}
+.side .who{font-family:var(--mincho);font-weight:700;color:var(--ink)}
 .side .ote{font-size:.8rem}
-.yomi{min-height:7.6rem;padding-block:.6rem .8rem;border-top:1px solid var(--rule)}
-.yomi-head{display:flex;justify-content:space-between;gap:1rem;font-size:.82rem;color:var(--ink-2)}
-.yomi-text{font-family:var(--mincho);font-size:1.12rem;line-height:1.85;margin:.3rem 0 0;min-height:4.2em;overflow-wrap:anywhere}
-.yomi-text .geta{color:var(--ink-2)}
-.yomi-text .caret{display:inline-block;width:.5em;border-bottom:1px solid var(--ink-2);margin-left:.1em}
+.yomi-band{background:var(--yomi);color:var(--yomi-ink)}
+.yomi{min-height:8.4rem;padding-block:.7rem .9rem}
+.yomi-head{display:flex;justify-content:space-between;gap:1rem;font-family:var(--mincho);font-size:.85rem;opacity:.7}
+.yomi-text{font-family:var(--mincho);font-weight:700;font-size:1.2rem;line-height:1.8;margin:.3rem 0 0;min-height:3.6em;overflow-wrap:anywhere}
+.yomi-text .geta{color:var(--seal)}
+.yomi-text .caret{display:inline-block;width:.55em;height:1.1em;vertical-align:-.15em;background:currentColor;opacity:.5;margin-left:.1em}
 .yomi-note{margin:.3rem 0 0;font-size:.9rem;min-height:1.6em}
 .yomi-note.bad{color:var(--seal)}
-.yomi-note a{font-family:var(--mincho);font-weight:700}
+.yomi-note a{font-family:var(--mincho);font-weight:900;color:inherit}
 
 .tatami{background-color:var(--tatami);
   background-image:repeating-linear-gradient(90deg,rgb(0 0 0 / .07) 0 1px,transparent 1px 4px),repeating-linear-gradient(0deg,rgb(255 255 255 / .05) 0 1px,transparent 1px 7px);
-  border-block:9px solid var(--heri);padding-block:14px}
+  border-block:10px solid var(--heri);padding-block:16px}
 .ba{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 8px}
 @media (min-width:640px){.ba{grid-template-columns:repeat(6,minmax(0,1fr));gap:14px 12px}}
 .fuda{position:relative;height:8.8rem;padding:.55rem .25rem;border:0;border-radius:3px;cursor:pointer;
   background:var(--fuda);color:var(--fuda-ink);
   box-shadow:inset 0 0 0 4px var(--fuda),inset 0 0 0 5px var(--fuda-frame),0 1px 0 rgb(0 0 0 / .3),0 2px 4px rgb(0 0 0 / .12);
   writing-mode:vertical-rl;display:flex;align-items:center;justify-content:center;
-  font-family:var(--mincho);font-weight:700;line-height:1.3;overflow:hidden;overflow-wrap:anywhere;
+  font-family:var(--mincho);font-weight:900;line-height:1.25;overflow:hidden;overflow-wrap:anywhere;
   transition:transform .3s ease,opacity .3s ease}
 .fuda.s1{font-size:1.4rem}.fuda.s2{font-size:1.15rem}.fuda.s3{font-size:.98rem}.fuda.s4{font-size:.84rem}.fuda.s5{font-size:.72rem}
 .fuda:disabled{cursor:default}
@@ -111,19 +136,20 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 
 /* 結果 */
 .res{padding-block:2.5rem 3.5rem}
-.res-kind{font-family:var(--mincho);color:var(--ink-2);margin:0}
-.res-title{font-size:clamp(1.8rem,6vw,2.4rem);margin:.1rem 0 0}
-.res-meta{margin:.3rem 0 0;color:var(--ink-2)}
-.res h3{font-size:1.05rem;margin:2rem 0 .5rem}
-.kiroku{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
-.kiroku li{padding:.55rem 0;border-bottom:1px solid var(--rule);font-size:.92rem;line-height:1.7}
-.kiroku .t{font-family:var(--mincho);font-weight:700;font-size:1rem}
+.res-kind{font-family:var(--mincho);color:var(--ink-2);margin:0;letter-spacing:.1em}
+.res-title{font-family:var(--display);font-weight:400;font-size:clamp(4rem,20vw,7rem);line-height:1.1;margin:.2rem 0 0;color:var(--seal)}
+.res-title.lose{color:var(--ink-2)}
+.res-meta{margin:.6rem 0 0;font-family:var(--mincho);font-weight:700;font-size:1.05rem}
+.res h3{font-family:var(--display);font-weight:400;font-size:1.3rem;margin:2.4rem 0 .6rem}
+.kiroku{list-style:none;margin:0;padding:0;border-top:2px solid var(--rule)}
+.kiroku li{padding:.6rem 0;border-bottom:1px solid var(--hair);font-size:.92rem;line-height:1.7}
+.kiroku .t{font-family:var(--mincho);font-weight:900;font-size:1.05rem;color:var(--ink)}
 .kiroku .by{float:right;margin-left:1rem;color:var(--ink-2);font-size:.82rem}
 .kiroku .by.me{color:var(--seal)}
 .kiroku .s{display:block;color:var(--ink-2)}
-.share{font:inherit;font-size:.9rem;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere;background:var(--paper-2);padding:.8rem 1rem;margin:0 0 .8rem}
+.share{font:inherit;font-size:.9rem;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere;background:var(--paper-2);padding:.9rem 1rem;margin:0 0 .8rem;border-left:4px solid var(--ink)}
 
-footer{border-top:1px solid var(--rule);padding-block:1.2rem 2rem;font-size:.8rem;color:var(--ink-2)}
+footer{border-top:2px solid var(--rule);padding-block:1.2rem 2rem;font-size:.8rem;color:var(--ink-2)}
 footer p{margin:0}
 footer a{color:var(--ink-2)}
 @media (prefers-reduced-motion: reduce){.fuda{transition:none}.fuda.miss{animation:none}}
@@ -132,51 +158,66 @@ footer a{color:var(--ink-2)}
 <body>
 
 <section id="home" class="view">
+  <div class="tobira">
+    <div class="v">
+      <h1 class="brand"><span>ウィキペディア</span><span>かるた</span></h1>
+      <p class="v-ex"><span class="geta">〓〓</span>は、日本の伝統芸能の一つで、室町時代に観阿弥・世阿弥の父子によって大成された……</p>
+      <span class="fuda s1" aria-hidden="true">能</span>
+    </div>
+  </div>
   <div class="wrap home">
-    <h1 class="brand">ウィキペディアかるた</h1>
-    <p class="intro">読み札はウィキペディアの記事の書き出し、取り札は記事の名前です。読み上げは一文字ずつ進み、題の言葉は〓で伏せてあります。何の記事か分かったところで札を取ってください。向かいには相手が一人座っています。</p>
-    <p class="example">〓〓は、日本の伝統芸能の一つで、室町時代に観阿弥・世阿弥の父子によって大成された……</p>
+    <p class="intro">読み札はウィキペディアの記事の書き出し、取り札は記事の名前。題の言葉は〓で伏せてあり、読み上げは一文字ずつ進む。何の記事か分かったところで札を払う。向かいには相手が一人座っている。</p>
 
-    <h2>札</h2>
-    <fieldset class="choice">
-      <label><input type="radio" name="src" value="daily" checked><span id="src-daily-label">今日の札<small>　おととい、よく読まれた記事から。今日はみんな同じ札です。</small></span></label>
-      <label><input type="radio" name="src" value="random"><span>でたらめ札<small>　ウィキペディアからでたらめに引いた記事。だいたい知らない記事です。</small></span></label>
-    </fieldset>
+    <section class="sec">
+      <h2>札</h2>
+      <fieldset class="choice">
+        <label><input type="radio" name="src" value="daily" checked><span><b>今日の札</b><small>おととい、よく読まれた記事から。今日はみんな同じ札。</small></span></label>
+        <label><input type="radio" name="src" value="random"><span><b>でたらめ札</b><small>ウィキペディアからでたらめに引いた記事。だいたい知らない記事。</small></span></label>
+      </fieldset>
+    </section>
 
-    <h2>相手</h2>
-    <fieldset class="choice">
-      <label><input type="radio" name="lv" value="shoshin"><span>初心<small>　ほとんど最後まで聞いてから取る。</small></span></label>
-      <label><input type="radio" name="lv" value="yudan" checked><span>有段<small>　半分あたりで取ってくる。</small></span></label>
-      <label><input type="radio" name="lv" value="meijin"><span>名人<small>　読み始めてすぐ取る。たまにお手つきする。</small></span></label>
-    </fieldset>
+    <section class="sec">
+      <h2>相手</h2>
+      <fieldset class="choice">
+        <label><input type="radio" name="lv" value="shoshin"><span><b>初心</b><small>ほとんど最後まで聞いてから取る。</small></span></label>
+        <label><input type="radio" name="lv" value="yudan" checked><span><b>有段</b><small>半分あたりで取ってくる。</small></span></label>
+        <label><input type="radio" name="lv" value="meijin"><span><b>名人</b><small>読み始めてすぐ取る。たまにお手つきする。</small></span></label>
+      </fieldset>
+    </section>
 
-    <div class="row">
-      <button type="button" class="btn primary" id="h-start">札を配る</button>
-      <a href="./">連歌ランへ</a>
+    <div class="row start">
+      <button type="button" class="btn primary big" id="h-start">札を配る</button>
     </div>
     <p class="err" id="h-err" hidden></p>
     <p class="record" id="h-record" hidden></p>
 
-    <section class="rules" aria-labelledby="rules-h">
+    <section class="sec rules" aria-labelledby="rules-h">
       <h2 id="rules-h">決まり</h2>
-      <ul>
-        <li>場に並ぶのは十二枚。読まれるのはその十二枚と、場に無い札が四枚です。場に無い札を読むことを空札といいます。</li>
-        <li>読まれている記事の札に触れたら、その札は自分のもの。</li>
-        <li>違う札に触れたり、空札のときにどれかに触れたりするとお手つきです。相手に一枚入り、その読みの間はもう取れません。</li>
-        <li>場の札がなくなったらおしまい。多く取ったほうの勝ちです。</li>
-      </ul>
-      <p>読み始める前に、札の場所を覚える暗記の時間があります。競技かるたの本式では十五分ありますが、ここでは十五秒です。</p>
+      <div>
+        <ol>
+          <li>場に並ぶのは十二枚。読まれるのはその十二枚と、場に無い札が四枚。場に無い札を読むのを空札という。</li>
+          <li>読まれている記事の札に触れたら、その札は自分のもの。</li>
+          <li>違う札に触れたり、空札のときにどれかに触れたりするとお手つき。相手に一枚入り、その読みの間はもう取れない。</li>
+          <li>場の札がなくなったらおしまい。多く取ったほうの勝ち。</li>
+        </ol>
+        <p>読み始める前に、札の場所を覚える暗記の時間がある。競技かるたの本式では十五分、ここでは十五秒。</p>
+      </div>
+    </section>
+
+    <section class="sec">
+      <h2>別の遊び</h2>
+      <p class="other"><a href="./">連歌ラン</a><small>本文のリンクだけで、記事から記事へ渡る。</small></p>
     </section>
   </div>
 </section>
 
 <section id="game" class="view" hidden>
   <div class="wrap side"><span><span class="who" id="cpu-name">相手</span><b id="cpu-n">0</b>枚</span><span class="ote" id="cpu-ote"></span></div>
-  <div class="wrap yomi" aria-live="polite">
+  <div class="yomi-band"><div class="wrap yomi" aria-live="polite">
     <div class="yomi-head"><span id="y-head">暗記の時間</span><span id="y-left"></span></div>
     <p class="yomi-text" id="y-text"></p>
     <p class="yomi-note" id="y-note"></p>
-  </div>
+  </div></div>
   <div class="tatami"><div class="wrap"><div class="ba" id="ba"></div></div></div>
   <div class="wrap bottom">
     <span class="side" style="padding:0"><span><span class="who">自分</span><b id="me-n">0</b>枚</span><span class="ote" id="me-ote"></span></span>
@@ -551,6 +592,7 @@ function end(){
   const won = G.me > G.cpu, draw = G.me === G.cpu;
   $("r-kind").textContent = G.deck.label + "・相手は" + G.lv.name;
   $("r-title").textContent = draw ? "引き分け" : won ? "勝ち" : "負け";
+  $("r-title").classList.toggle("lose", !won);
   $("r-meta").textContent = "自分 " + G.me + "枚、" + G.lv.name + " " + G.cpu + "枚。お手つき 自分" + G.meOte + "・" + G.lv.name + G.cpuOte + "。";
   $("r-list").replaceChildren(...G.log.map((l) => {
     const li = document.createElement("li");
