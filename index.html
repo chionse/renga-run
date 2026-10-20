@@ -7,124 +7,149 @@
 <meta name="description" content="ウィキペディアの本文のリンクだけをたどって、はじめの記事から目当ての記事まで行く遊び。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Old+Mincho:wght@400;700;900&display=swap">
 <style>
-/* 飾りは懐紙（縦書きの道筋）だけ。あとは紙と墨と、挙句の朱。 */
+/* 縦組みのポスター。題字は太いゴシック、句は明朝。紙と墨と群青、朱は挙句だけ。 */
 :root{
-  --paper:#F4F2EC;
-  --paper-2:#EAE6DC;
-  --ink:#22201C;
-  --ink-2:#6B665D;
-  --rule:#CFC9BC;
-  --link:#2A4F86;
-  --link-bg:#DCE3EC;
-  --seal:#A8382B;
-  --mincho:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+  --paper:#F2EFE7;
+  --paper-2:#E7E2D6;
+  --ink:#141414;
+  --ink-2:#64605A;
+  --rule:#141414;
+  --hair:#CFC8B8;
+  --gunjo:#2440A0;
+  --gunjo-bg:#DCE1F2;
+  --shu:#C8432D;
+  --display:"Dela Gothic One","Hiragino Sans","Yu Gothic",sans-serif;
+  --mincho:"Zen Old Mincho","Hiragino Mincho ProN","Yu Mincho","YuMincho",serif;
   --gothic:-apple-system,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans JP",sans-serif;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --paper:#191814;--paper-2:#23211C;--ink:#E4E0D6;--ink-2:#A39D90;--rule:#3A3730;
-    --link:#9DB7DF;--link-bg:#2A3242;--seal:#DC7563;color-scheme:dark;
+    --paper:#121211;--paper-2:#1D1C1A;--ink:#EDE9DF;--ink-2:#9E998F;--rule:#EDE9DF;--hair:#34322E;
+    --gunjo:#93A9F2;--gunjo-bg:#1F2846;--shu:#EE7A62;color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --paper:#191814;--paper-2:#23211C;--ink:#E4E0D6;--ink-2:#A39D90;--rule:#3A3730;
-  --link:#9DB7DF;--link-bg:#2A3242;--seal:#DC7563;color-scheme:dark;
+  --paper:#121211;--paper-2:#1D1C1A;--ink:#EDE9DF;--ink-2:#9E998F;--rule:#EDE9DF;--hair:#34322E;
+  --gunjo:#93A9F2;--gunjo-bg:#1F2846;--shu:#EE7A62;color-scheme:dark;
 }
 
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--gothic);font-size:16px;line-height:1.8}
-.wrap{max-width:46rem;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:52rem;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 p,li,dd{word-break:auto-phrase}
-a{color:var(--link)}
-h1,h2,h3{font-family:var(--mincho);font-weight:700;line-height:1.4}
+a{color:var(--gunjo)}
+h1,h2,h3{font-weight:700;line-height:1.35}
+.tcy{text-combine-upright:all}
 
 button{font:inherit;color:inherit}
-.btn{font-size:.95rem;padding:.5em 1.1em;border:1px solid var(--ink);background:var(--paper);color:var(--ink);border-radius:0;cursor:pointer}
-.btn:hover{background:var(--paper-2)}
+.btn{font-family:var(--mincho);font-weight:700;font-size:1rem;padding:.55em 1.2em;border:2px solid var(--ink);background:transparent;color:var(--ink);border-radius:0;cursor:pointer}
+.btn:hover{background:var(--ink);color:var(--paper)}
 .btn.primary{background:var(--ink);color:var(--paper)}
-.btn.primary:hover{opacity:.85}
-.btn.sm{font-size:.85rem;padding:.25em .7em}
-.btn.warn{border-color:var(--seal);color:var(--seal)}
-.btn:disabled{opacity:.4;cursor:default}
-.textbtn{background:none;border:0;padding:0;color:var(--link);text-decoration:underline;text-underline-offset:.2em;cursor:pointer;font-size:.95rem}
-button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--link);outline-offset:2px}
-.row{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem 1.2rem}
-.err{color:var(--seal);font-size:.9rem;margin:.6rem 0 0}
+.btn.primary:hover{background:var(--gunjo);border-color:var(--gunjo)}
+.btn.big{font-size:1.25rem;padding:.7em 1.6em}
+.btn.sm{font-size:.85rem;padding:.2em .7em;border-width:1px}
+.btn.warn{border-color:var(--shu);color:var(--shu)}
+.btn.warn:hover{background:var(--shu);color:var(--paper)}
+.btn:disabled{opacity:.35;cursor:default;background:transparent;color:var(--ink)}
+.textbtn{background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.25em;cursor:pointer;font-size:.95rem}
+.textbtn:hover{color:var(--gunjo)}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--gunjo);outline-offset:3px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:.8rem 1.4rem}
+.err{color:var(--shu);font-size:.9rem;margin:.8rem 0 0}
 
-/* はじめ */
-.home{padding-block:2.5rem 3rem}
-.brand{font-size:2.2rem;letter-spacing:.06em;margin:0}
-.intro{margin:.8rem 0 0}
-.home h2{font-size:1.15rem;margin:2.4rem 0 .6rem}
-.odai{margin:0 0 1.1rem;display:grid;grid-template-columns:auto minmax(0,1fr);gap:.4rem 1rem}
-.odai dt{font-family:var(--mincho);color:var(--ink-2);padding-top:.35rem}
-.odai dt.ag{color:var(--seal)}
-.odai dd{margin:0}
-.odai strong{font-family:var(--mincho);font-size:1.45rem;line-height:1.45;overflow-wrap:anywhere}
-.sum{display:block;font-size:.88rem;color:var(--ink-2);line-height:1.7;margin-top:.15rem}
-.record{font-size:.92rem;margin:0 0 1rem}
-.custom label{display:block;font-size:.88rem;color:var(--ink-2);margin-top:.7rem}
-.custom input{font:inherit;font-size:1.05rem;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:0;padding:.35rem .5rem;width:100%;max-width:24rem}
-.custom .row{margin-top:1rem}
-.rules ul{margin:0;padding-left:1.2em}
-.rules li{margin:.2rem 0}
-.rules p{color:var(--ink-2);font-size:.92rem;margin:1rem 0 0}
-.other{margin:2.4rem 0 0;padding-top:1rem;border-top:1px solid var(--rule)}
+/* はじめ：縦組みの扉 */
+.tobira{display:flex;justify-content:center;border-bottom:2px solid var(--rule);padding:clamp(1.5rem,5vw,3rem) 16px clamp(1.5rem,4vw,2.5rem)}
+.v{writing-mode:vertical-rl;inline-size:clamp(20rem,47svh,30rem);width:fit-content;max-width:100%}
+.v > * + *{margin-block-start:clamp(.9rem,4vw,2rem)}
+.brand{font-family:var(--display);font-weight:400;font-size:clamp(4.2rem,21vw,6.8rem);line-height:1;letter-spacing:.02em;margin:0;white-space:nowrap}
+.v-date{font-family:var(--mincho);font-size:.95rem;color:var(--ink-2);margin:0;padding-top:.3em;letter-spacing:.2em}
+.v-ku{font-family:var(--mincho);margin:0;font-size:clamp(2rem,9vw,3.3rem);line-height:1.25;font-weight:700;overflow-wrap:anywhere}
+.v-ku .k{display:inline-block;font-size:.42em;font-weight:400;color:var(--ink-2);margin-block-end:.8em;letter-spacing:.15em}
+.v-ku.ag{padding-inline-start:2.4em}
+.v-ku.ag .k,.v-ku.ag strong{color:var(--shu)}
+.v-ku strong{font-weight:900}
+
+.home{padding-block:1.6rem 3rem}
+.sums{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.4rem 1rem;margin:0;font-size:.88rem;color:var(--ink-2);line-height:1.7}
+.sums dt{font-family:var(--mincho);color:var(--ink)}
+.sums dt.ag{color:var(--shu)}
+.sums dd{margin:0}
+.record{font-family:var(--mincho);font-size:1rem;margin:1.2rem 0 0}
+.home .start{margin-top:1.6rem}
+.sec{margin-top:3.2rem;border-top:2px solid var(--rule);padding-top:1rem;display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr);gap:.5rem 2rem}
+@media (max-width:640px){.sec{grid-template-columns:minmax(0,1fr)}}
+.sec h2{font-family:var(--display);font-weight:400;font-size:1.5rem;margin:0;line-height:1.3}
+.custom label{display:block;font-size:.85rem;color:var(--ink-2);margin-top:.8rem}
+.custom label:first-child{margin-top:0}
+.custom input{font-family:var(--mincho);font-weight:700;font-size:1.3rem;color:var(--ink);background:transparent;border:0;border-bottom:2px solid var(--ink);border-radius:0;padding:.2rem 0;width:100%}
+.custom input::placeholder{color:var(--ink-2);opacity:.45}
+.custom .row{margin-top:1.3rem}
+.rules ol{list-style:none;margin:0;padding:0;counter-reset:n}
+.rules li{counter-increment:n;display:grid;grid-template-columns:2.2rem minmax(0,1fr);gap:.6rem;padding:.5rem 0;border-bottom:1px solid var(--hair)}
+.rules li::before{content:counter(n,cjk-ideographic);font-family:var(--display);font-size:1.3rem;line-height:1.3}
+.rules p{color:var(--ink-2);font-size:.9rem;margin:1rem 0 0}
+.other{font-family:var(--mincho);font-size:1.05rem;margin:0}
+.other a{font-weight:700}
+.other small{display:block;font-family:var(--gothic);font-size:.85rem;color:var(--ink-2)}
 
 /* 対局中の帯 */
-.za{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--paper);border-bottom:1px solid var(--rule)}
+.za{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--paper);border-bottom:2px solid var(--rule)}
 body.playing::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
-.za-in{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem 1rem;padding-block:.5rem}
+.za-in{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem 1rem;padding-block:.45rem}
 .za-goal{display:flex;align-items:baseline;gap:.5rem;min-width:0;flex:1 1 14rem}
-.za-goal .k{font-family:var(--mincho);color:var(--seal);font-size:.9rem;flex:none}
-.goal-btn{min-width:0;background:none;border:0;padding:0;color:var(--ink);cursor:pointer;font-family:var(--mincho);font-weight:700;font-size:1.05rem;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:underline dotted var(--ink-2);text-underline-offset:.25em}
-.za-stats{font-variant-numeric:tabular-nums;color:var(--ink-2);font-size:.9rem;display:flex;gap:.9rem}
-.za-stats b{color:var(--ink);font-size:1.1rem}
+.za-goal .k{font-family:var(--mincho);color:var(--shu);font-size:.85rem;flex:none}
+.goal-btn{min-width:0;background:none;border:0;padding:0;color:var(--shu);cursor:pointer;font-family:var(--mincho);font-weight:900;font-size:1.1rem;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:underline dotted;text-underline-offset:.25em}
+.za-stats{display:flex;align-items:baseline;gap:.9rem;font-variant-numeric:tabular-nums;color:var(--ink-2);font-size:.85rem}
+.za-stats b{font-family:var(--display);font-weight:400;font-size:1.5rem;color:var(--ink);line-height:1;margin-right:.1em}
 .za-acts{display:flex;gap:.4rem}
 .goal-card{display:flex;gap:.9rem;align-items:flex-start;padding-block:0 .7rem}
 .goal-card img{width:64px;height:64px;object-fit:cover;flex:none;background:var(--paper-2)}
 .goal-card p{margin:0;font-size:.9rem;color:var(--ink-2);min-width:0}
 
 /* 懐紙 */
-.kaishi-band{background:var(--paper-2);border-bottom:1px solid var(--rule)}
-.kaishi{list-style:none;margin:0;padding:.8rem 0;display:flex;align-items:flex-start;direction:rtl;overflow-x:auto;scrollbar-width:thin;min-height:5rem}
-.kaishi li{direction:ltr;writing-mode:vertical-rl;flex:none;font-family:var(--mincho);font-size:1.08rem;line-height:1.55;max-height:9.5em;padding:.1rem .65rem;color:var(--ink-2);overflow-wrap:anywhere}
-.kaishi li + li{border-right:1px solid var(--rule)}
-.kaishi .no{font-size:.7rem;margin-inline-end:.6em;color:var(--ink-2)}
-.kaishi li.cur{color:var(--ink);font-weight:700}
-.kaishi li.gap{color:var(--rule);border-right:0;padding-inline:.1rem}
+.kaishi-band{background:var(--paper-2);border-bottom:1px solid var(--hair)}
+.kaishi{list-style:none;margin:0;padding:.9rem 0;display:flex;align-items:flex-start;direction:rtl;overflow-x:auto;scrollbar-width:thin;min-height:5rem}
+.kaishi li{direction:ltr;writing-mode:vertical-rl;flex:none;font-family:var(--mincho);font-weight:700;font-size:1.12rem;line-height:1.5;max-height:9.5em;padding:.1rem .7rem;color:var(--ink-2);overflow-wrap:anywhere}
+.kaishi li + li{border-right:1px solid var(--hair)}
+.kaishi .no{font-weight:400;font-size:.68rem;margin-inline-end:.7em;color:var(--ink-2)}
+.kaishi li.cur{color:var(--gunjo);font-weight:900}
+.kaishi li.cur .no{color:var(--gunjo)}
+.kaishi li.gap{color:var(--ink-2);border-right:0;padding-inline:.1rem;opacity:.5}
 .kaishi li.gap + li{border-right:0}
-.kaishi li.goal,.kaishi li.goal .no{color:var(--seal)}
-.kaishi li.goal.done{font-weight:700}
-.kaishi li.goal.miss{opacity:.55}
-.kaishi.big{padding:1.2rem 1rem;flex-wrap:wrap;overflow:visible;row-gap:1.2rem}
-.kaishi.big li{font-size:1.25rem;max-height:12em}
+.kaishi li.goal,.kaishi li.goal .no{color:var(--shu)}
+.kaishi li.goal{padding-inline-start:1.6em}
+.kaishi li.goal.done{font-weight:900}
+.kaishi li.goal.miss{opacity:.5}
+.kaishi.big{padding:1.4rem 1.2rem;flex-wrap:wrap;overflow:visible;row-gap:1.4rem}
+.kaishi.big li{font-size:1.4rem;max-height:12em}
 .kaishi.big li:not(.goal):not(.gap){color:var(--ink)}
 
 /* 記事 */
 .sheet{padding-block:1.4rem 3.5rem}
-.cur-num{font-family:var(--mincho);color:var(--ink-2);margin:0}
-.art-title{font-size:clamp(1.6rem,5vw,2.1rem);margin:.1rem 0 0}
-.art-meta{font-size:.82rem;color:var(--ink-2);margin:.2rem 0 1.4rem}
-.art{line-height:1.9;overflow-wrap:break-word;transition:opacity .2s}
-.art.dim{opacity:.4;pointer-events:none}
+.sheet > *{max-width:44rem}
+.cur-num{font-family:var(--mincho);color:var(--gunjo);margin:0;font-weight:700}
+.art-title{font-family:var(--mincho);font-weight:900;font-size:clamp(1.8rem,6vw,2.6rem);line-height:1.25;margin:.1rem 0 0}
+.art-meta{font-size:.8rem;color:var(--ink-2);margin:.3rem 0 1.4rem;padding-bottom:1rem;border-bottom:2px solid var(--rule)}
+.art{line-height:1.95;overflow-wrap:break-word;transition:opacity .2s}
+.art.dim{opacity:.35;pointer-events:none}
 .art::after{content:"";display:block;clear:both}
 .art p{margin:0 0 1em}
-.art h2{font-size:1.3rem;margin:2em 0 .6em;padding-bottom:.2em;border-bottom:1px solid var(--rule);clear:both}
-.art h3{font-size:1.1rem;margin:1.6em 0 .5em}
+.art h2,.art h3,.art h4{font-family:var(--mincho);font-weight:900}
+.art h2{font-size:1.35rem;margin:2.2em 0 .6em;padding-bottom:.2em;border-bottom:1px solid var(--hair);clear:both}
+.art h3{font-size:1.12rem;margin:1.7em 0 .5em}
 .art h4{font-size:1rem;margin:1.4em 0 .4em}
-.art a.wl{color:var(--link);text-decoration-thickness:1px;text-underline-offset:.22em;cursor:pointer}
-.art a.wl:hover{background:var(--link-bg)}
+.art a.wl{color:var(--gunjo);text-decoration-thickness:1px;text-underline-offset:.22em;cursor:pointer}
+.art a.wl:hover{background:var(--gunjo);color:var(--paper);text-decoration:none}
 .art a.wl.seen{color:var(--ink-2);text-decoration-style:dotted}
 .art a.anchor{color:inherit}
 .art ul,.art ol{padding-left:1.5em;margin:0 0 1em}
 .art li{margin:.15em 0}
-.art blockquote{margin:1em 0;padding:.2em 1em;border-left:3px solid var(--rule);color:var(--ink-2)}
+.art blockquote{margin:1em 0;padding:.2em 1em;border-left:3px solid var(--hair);color:var(--ink-2)}
 .art .hatnote,.art .rellink,.art .dablink{font-size:.85rem;color:var(--ink-2);margin:0 0 1em}
 .art img{max-width:100%;height:auto}
 .art figure{margin:1em 0;max-width:100%}
@@ -132,7 +157,7 @@ body.playing::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-ar
 .art .thumbinner{max-width:100%;width:auto!important}
 .art .tw{overflow-x:auto;max-width:100%;margin:1em 0}
 .art table{border-collapse:collapse;font-size:.86rem;line-height:1.6}
-.art th,.art td{border:1px solid var(--rule);padding:.3em .55em;vertical-align:top;text-align:left}
+.art th,.art td{border:1px solid var(--hair);padding:.3em .55em;vertical-align:top;text-align:left}
 .art th{background:var(--paper-2)}
 .art .infobox-w{float:right;clear:right;max-width:20rem;margin:0 0 1.2em 1.5em}
 .art .infobox-w table{width:100%!important}
@@ -143,28 +168,30 @@ body.playing::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-ar
 @media (max-width:640px){
   .art .infobox-w,.art figure.mw-halign-right,.art figure.mw-halign-left,.art .tright,.art .tleft{float:none;margin:1em 0;max-width:100%}
 }
-.art-src{font-size:.8rem;color:var(--ink-2);margin-top:2.5rem;padding-top:.8rem;border-top:1px solid var(--rule)}
+.art-src{font-size:.8rem;color:var(--ink-2);margin-top:2.5rem;padding-top:.8rem;border-top:1px solid var(--hair)}
 .art-src a{color:var(--ink-2)}
 
-.status{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;align-items:center;gap:1rem;background:var(--ink);color:var(--paper);font-size:.9rem;padding:.55rem max(16px,env(safe-area-inset-left,0px)) calc(.55rem + env(safe-area-inset-bottom,0px))}
+.status{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;align-items:center;gap:1rem;background:var(--ink);color:var(--paper);font-family:var(--mincho);font-weight:700;font-size:.92rem;padding:.6rem max(16px,env(safe-area-inset-left,0px)) calc(.6rem + env(safe-area-inset-bottom,0px))}
 .status span{flex:1;min-width:0}
-.status button{background:none;border:1px solid var(--paper);color:var(--paper);padding:.15em .8em;cursor:pointer;flex:none}
+.status button{background:none;border:1px solid var(--paper);color:var(--paper);padding:.15em .8em;cursor:pointer;flex:none;font-family:var(--gothic);font-weight:400}
 
-/* 結果 */
-.res{padding-block:2.5rem 3.5rem}
-.res-kind{font-family:var(--mincho);color:var(--ink-2);margin:0}
-.res-title{font-size:clamp(1.8rem,6vw,2.4rem);margin:.1rem 0 0}
-.res-meta{margin:.3rem 0 0;color:var(--ink-2);overflow-wrap:anywhere}
-.res-rank{margin:1.2rem 0 1.6rem}
-.res-rank b{font-family:var(--mincho);font-size:1.3rem;color:var(--seal);margin-right:.5em}
-.seal.miss b{color:var(--ink-2)}
-.res .kaishi-band{border:1px solid var(--rule)}
-.res h3{font-size:1.05rem;margin:2rem 0 .5rem}
-.share{font:inherit;font-size:.9rem;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere;background:var(--paper-2);padding:.8rem 1rem;margin:0 0 .6rem}
-.check{display:flex;align-items:center;gap:.45rem;font-size:.9rem;color:var(--ink-2);margin-bottom:1rem;cursor:pointer}
+/* 結果：位を縦に大きく */
+.res-top{display:flex;justify-content:center;border-bottom:2px solid var(--rule);padding:clamp(1.5rem,5vw,3rem) 16px 1.6rem}
+.res-top .v{inline-size:clamp(17rem,40svh,24rem)}
+.res-rank{font-family:var(--display);font-weight:400;font-size:clamp(4.5rem,24vw,7.5rem);line-height:1;margin:0;color:var(--shu);white-space:nowrap}
+.seal.miss .res-rank{color:var(--ink-2)}
+.res-kind{font-family:var(--mincho);color:var(--ink-2);margin:0;letter-spacing:.2em;padding-top:.3em}
+.res-title{font-family:var(--mincho);font-weight:900;font-size:clamp(1.6rem,6.4vw,2.4rem);line-height:1.25;margin:0}
+.res-note{font-family:var(--mincho);margin:0;font-size:1rem;padding-inline-start:3.2em;color:var(--ink-2)}
+.res{padding-block:1.6rem 3.5rem}
+.res-meta{margin:0 0 1.4rem;font-family:var(--mincho);font-weight:700;overflow-wrap:anywhere}
+.res .kaishi-band{border:2px solid var(--rule)}
+.res h3{font-family:var(--display);font-weight:400;font-size:1.3rem;margin:2.2rem 0 .6rem}
+.share{font:inherit;font-size:.9rem;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere;background:var(--paper-2);padding:.9rem 1rem;margin:0 0 .6rem;border-left:4px solid var(--ink)}
+.check{display:flex;align-items:center;gap:.45rem;font-size:.9rem;color:var(--ink-2);margin-bottom:1.2rem;cursor:pointer}
 .check input{width:1rem;height:1rem;accent-color:var(--ink)}
 
-footer{border-top:1px solid var(--rule);padding-block:1.2rem 2rem;font-size:.8rem;color:var(--ink-2)}
+footer{border-top:2px solid var(--rule);padding-block:1.2rem 2rem;font-size:.78rem;color:var(--ink-2)}
 footer p{margin:0}
 footer a{color:var(--ink-2)}
 @media (prefers-reduced-motion: reduce){.art{transition:none}}
@@ -173,51 +200,60 @@ footer a{color:var(--ink-2)}
 <body>
 
 <section id="home" class="view">
+  <div class="tobira">
+    <div class="v">
+      <h1 class="brand">連歌ラン</h1>
+      <p class="v-date" id="d-eyebrow">今日のお題</p>
+      <p class="v-ku"><span class="k">発句</span><strong id="d-from"></strong></p>
+      <p class="v-ku ag"><span class="k">挙句</span><strong id="d-to"></strong></p>
+    </div>
+  </div>
   <div class="wrap home">
-    <h1 class="brand">連歌ラン</h1>
-    <p class="intro">ウィキペディアの記事から記事へ、本文のリンクだけをたどって目当ての記事まで行く遊びです。連歌にならって、出発の記事を発句、目当ての記事を挙句と呼びます。少ないリンクで着くほど上手。</p>
-
-    <h2 id="d-eyebrow">今日のお題</h2>
-    <dl class="odai">
-      <dt>発句</dt>
-      <dd><strong id="d-from"></strong><span class="sum" id="d-from-sum"></span></dd>
-      <dt class="ag">挙句</dt>
-      <dd><strong id="d-to"></strong><span class="sum" id="d-to-sum"></span></dd>
+    <dl class="sums">
+      <dt>発句</dt><dd id="d-from-sum">…</dd>
+      <dt class="ag">挙句</dt><dd id="d-to-sum">…</dd>
     </dl>
     <p class="record" id="d-record" hidden></p>
-    <div class="row">
-      <button type="button" class="btn primary" id="d-start">はじめる</button>
+    <div class="row start">
+      <button type="button" class="btn primary big" id="d-start">巻きはじめる</button>
       <button type="button" class="textbtn" id="d-draw">別のお題</button>
       <button type="button" class="textbtn" id="d-today" hidden>今日のお題に戻す</button>
     </div>
     <p class="err" id="d-err" hidden></p>
 
-    <form class="custom" id="custom" novalidate>
-      <h2>お題を自分で決める</h2>
-      <label for="c-from">発句（出発の記事）</label>
-      <input id="c-from" list="sugg-from" autocomplete="off" placeholder="竹取物語">
-      <datalist id="sugg-from"></datalist>
-      <label for="c-to">挙句（目当ての記事）</label>
-      <input id="c-to" list="sugg-to" autocomplete="off" placeholder="アポロ11号">
-      <datalist id="sugg-to"></datalist>
-      <div class="row">
-        <button type="submit" class="btn primary" id="c-start">このお題ではじめる</button>
-        <button type="button" class="textbtn" id="c-random">適当に選ぶ</button>
-      </div>
-      <p class="err" id="c-err" hidden></p>
-    </form>
-
-    <section class="rules" aria-labelledby="rules-h">
+    <section class="sec rules" aria-labelledby="rules-h">
       <h2 id="rules-h">決まり</h2>
-      <ul>
-        <li>動けるのは本文のリンクだけ。検索やアドレスの入力はなし。</li>
-        <li>リンクを一つ押すごとに一句。「一句戻る」も一句に数えます。</li>
-        <li>挙句の記事に着いたらおしまい（連歌では満尾といいます）。</li>
-      </ul>
-      <p>「挙句の果て」の挙句は、この連歌の最後の句のことです。</p>
+      <div>
+        <ol>
+          <li>ウィキペディアの記事の本文にあるリンクだけをたどって、発句の記事から挙句の記事まで行く。検索やアドレスの入力はなし。</li>
+          <li>リンクを一つ押すごとに一句。「一句戻る」も一句に数える。</li>
+          <li>挙句の記事に着いたら満尾。少ない句で着くほど上の位。</li>
+        </ol>
+        <p>「挙句の果て」の挙句は、連歌の最後の句のこと。</p>
+      </div>
     </section>
 
-    <p class="other">ほかの遊び：<a href="karuta.html">ウィキペディアかるた</a>（記事の書き出しを聞いて、記事名の札を取る）</p>
+    <section class="sec">
+      <h2>自分で詠む</h2>
+      <form class="custom" id="custom" novalidate>
+        <label for="c-from">発句（出発の記事）</label>
+        <input id="c-from" list="sugg-from" autocomplete="off" placeholder="竹取物語">
+        <datalist id="sugg-from"></datalist>
+        <label for="c-to">挙句（目当ての記事）</label>
+        <input id="c-to" list="sugg-to" autocomplete="off" placeholder="アポロ11号">
+        <datalist id="sugg-to"></datalist>
+        <div class="row">
+          <button type="submit" class="btn primary" id="c-start">このお題で巻く</button>
+          <button type="button" class="textbtn" id="c-random">適当に選ぶ</button>
+        </div>
+        <p class="err" id="c-err" hidden></p>
+      </form>
+    </section>
+
+    <section class="sec">
+      <h2>別の遊び</h2>
+      <p class="other"><a href="karuta.html">ウィキペディアかるた</a><small>記事の書き出しを聞いて、記事名の札を払う。</small></p>
+    </section>
   </div>
 </section>
 
@@ -228,7 +264,7 @@ footer a{color:var(--ink-2)}
         <span class="k">挙句</span>
         <button type="button" class="goal-btn" id="goal-btn" aria-expanded="false" aria-controls="goal-card" title="挙句の記事の説明"><span id="goal-name"></span></button>
       </div>
-      <div class="za-stats"><span><b id="s-steps">0</b> 句</span><span id="s-time">0:00</span></div>
+      <div class="za-stats"><span><b id="s-steps">0</b>句</span><span id="s-time">0:00</span></div>
       <div class="za-acts">
         <button type="button" class="btn sm" id="g-back" disabled>一句戻る</button>
         <button type="button" class="btn sm" id="g-quit">やめる</button>
@@ -251,18 +287,23 @@ footer a{color:var(--ink-2)}
 </section>
 
 <section id="result" class="view" hidden>
+  <div class="res-top seal" id="r-seal">
+    <div class="v">
+      <p class="res-rank" id="r-rank"></p>
+      <p class="res-kind" id="r-eyebrow">満尾</p>
+      <h2 class="res-title" id="r-title"></h2>
+      <p class="res-note" id="r-note"></p>
+    </div>
+  </div>
   <div class="wrap res">
-    <p class="res-kind" id="r-eyebrow">満尾</p>
-    <h2 class="res-title" id="r-title"></h2>
     <p class="res-meta" id="r-meta"></p>
-    <p class="res-rank seal" id="r-seal"><b id="r-rank"></b><span id="r-note"></span></p>
     <div class="kaishi-band"><ol class="kaishi big" id="r-kaishi" aria-label="この巻の懐紙"></ol></div>
-    <h3>共有する</h3>
+    <h3>共有</h3>
     <pre class="share" id="r-share"></pre>
-    <label class="check"><input type="checkbox" id="r-showpath">途中の記事も書く（道順がばれます）</label>
+    <label class="check"><input type="checkbox" id="r-showpath">途中の記事も書く（道順がばれる）</label>
     <div class="row">
       <button type="button" class="btn primary" id="r-copy">共有文をコピー</button>
-      <button type="button" class="btn" id="r-again">同じお題でもう一度</button>
+      <button type="button" class="btn" id="r-again">同じお題でもう一巻</button>
       <button type="button" class="textbtn" id="r-next">別のお題</button>
       <button type="button" class="textbtn" id="r-home">はじめに戻る</button>
     </div>
@@ -271,7 +312,7 @@ footer a{color:var(--ink-2)}
 
 <footer>
   <div class="wrap">
-    <p>記事の本文と画像は、遊ぶたびにウィキペディア日本語版から読み込んでいます（本文は CC BY-SA 4.0）。ウィキメディア財団とは関係のない個人の遊びです。</p>
+    <p>記事の本文と画像は、遊ぶたびにウィキペディア日本語版から読み込んでいる（本文は CC BY-SA 4.0）。ウィキメディア財団とは関係のない個人の遊び。</p>
   </div>
 </footer>
 
@@ -540,6 +581,13 @@ function cleanArticle(html){
 }
 
 /* ---------- 画面 ---------- */
+// 縦組みに入れる文字。三桁までの数字は縦中横にして立てる
+function tate(el, text){
+  el.replaceChildren(...String(text).split(/((?<!\d)\d{1,3}(?!\d))/).filter(Boolean).map((p) => {
+    if (!/^\d{1,3}$/.test(p)) return p;
+    const s = document.createElement("span"); s.className = "tcy"; s.textContent = p; return s;
+  }));
+}
 const views = { home: $("home"), game: $("game"), result: $("result") };
 function show(v){
   for (const k in views) views[k].hidden = (k !== v);
@@ -554,7 +602,7 @@ function renderKaishi(el, path, opts){
     const li = document.createElement("li");
     if (cls) li.className = cls;
     const a = document.createElement("span"); a.className = "no"; a.textContent = no;
-    const b = document.createElement("span"); b.className = "ku"; b.textContent = ku;
+    const b = document.createElement("span"); b.className = "ku"; tate(b, ku);
     li.append(a, b);
     frag.append(li);
   };
@@ -583,10 +631,10 @@ let homeReq = 0;
 function setHome(from, to, label){
   H = { from, to, label, a: null, b: null };
   $("d-eyebrow").textContent = label.text;
-  $("d-from").textContent = from;
-  $("d-to").textContent = to;
-  $("d-from-sum").textContent = "";
-  $("d-to-sum").textContent = "";
+  tate($("d-from"), from);
+  tate($("d-to"), to);
+  $("d-from-sum").textContent = "…";
+  $("d-to-sum").textContent = "…";
   $("d-err").hidden = true;
   $("d-today").hidden = !!label.daily;
   const rec = label.daily ? store.get("daily:" + todayKey()) : null;
@@ -603,8 +651,8 @@ function setHome(from, to, label){
       return;
     }
     H.a = a; H.b = b;
-    $("d-from").textContent = a.title;
-    $("d-to").textContent = b.title;
+    tate($("d-from"), a.title);
+    tate($("d-to"), b.title);
     $("d-from-sum").textContent = a.summary;
     $("d-to-sum").textContent = b.summary;
   }).catch(() => {
@@ -800,7 +848,7 @@ function finish(won){
   g.rank = rank;
 
   $("r-eyebrow").textContent = won ? "満尾" : "やめた";
-  $("r-title").textContent = won ? g.moves + "句で着いた" : g.moves + "句でやめた";
+  tate($("r-title"), won ? g.moves + "句で着いた" : g.moves + "句でやめた");
   $("r-meta").textContent = g.from + " → " + g.to + "・" + jaTime(ms);
   $("r-note").textContent = rank.note;
   $("r-rank").textContent = rank.name;
