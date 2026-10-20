@@ -426,7 +426,7 @@ function rankFor(n){
   if (n <= 6) return { name: "連衆", note: "座に連なる一人前の詠み手の位。" };
   if (n <= 12) return { name: "執筆", note: "懐紙に句を書き留める役。座の進め方を覚えるところから。" };
   if (n <= 35) return { name: "行脚", note: "遠回りもまた旅。宗祇ら連歌師も諸国を巡りながら句を詠んだ。" };
-  return { name: "歌仙", note: "三十六句を超えた。歌仙一巻ぶんを巻き上げたことになる。" };
+  return { name: "歌仙", note: "三十六句に届いた。歌仙一巻ぶんを巻き上げたことになる。" };
 }
 
 /* ---------- ウィキペディアAPI ---------- */
@@ -688,6 +688,7 @@ async function prepare(from, to, label, errEl, btn){
     const [a, b] = await resolveInfo([from, to]);
     if (a.missing || b.missing) return showErr(errEl, "「" + (a.missing ? a : b).input + "」という記事が見つかりませんでした。候補から選び直してください。");
     if (a.title === b.title) return showErr(errEl, "発句と挙句が同じ記事になっています。別の記事を選んでください。");
+    if (b.disambig) return showErr(errEl, "「" + b.title + "」は曖昧さ回避のページなので、挙句にはできません。意味ごとの記事を選んでください。");
     startGame(a, b, label);
   } catch (e) {
     showErr(errEl, "ウィキペディアに接続できませんでした。インターネットにつながっているか確かめて、もう一度押してください。");
@@ -725,16 +726,39 @@ function startGame(a, b, label){
   resetQuit();
   renderKaishi($("kaishi"), [], { goal: b.title });
   show("game");
+  guard();
   go(a.title, false);
 }
 
+let statusTimer = null;
 function setStatus(kind, text){
   const s = $("status");
+  clearTimeout(statusTimer);
   if (kind === "clear") { s.hidden = true; return; }
   $("status-text").textContent = text;
   $("status-retry").hidden = kind !== "error";
   s.hidden = false;
+  if (kind === "info") statusTimer = setTimeout(() => { s.hidden = true; }, 2600);
 }
+
+/* ブラウザの「戻る」（スマホの横スワイプも）は、対局中は「一句戻る」として扱う。
+   履歴に見張りを一つ積んでおき、戻られたら積み直す。 */
+let guarded = false;
+function guard(){ if (!guarded) { history.pushState({ renga: 1 }, ""); guarded = true; } }
+window.addEventListener("popstate", () => {
+  guarded = false;
+  if (G && !G.done && !views.game.hidden) {
+    guard();
+    if (G.busy) return;
+    if (G.trail.length >= 2) go(G.trail[G.trail.length - 2], true, true);
+    else setStatus("info", "ここが発句です。やめる時は「やめる」を押してください。");
+    return;
+  }
+  if (!views.result.hidden) { setDaily(); show("home"); }
+});
+window.addEventListener("beforeunload", (e) => {
+  if (G && !G.done && G.moves > 0) { e.preventDefault(); e.returnValue = ""; }
+});
 
 // trail は「一句戻る」で戻れる道。戻った時は積まずに一つ下ろす（path には戻った句も残る）
 async function go(title, count, isBack){
@@ -898,7 +922,7 @@ function attachSuggest(input, list){
 /* ---------- 操作 ---------- */
 $("d-start").addEventListener("click", () => {
   if (!H) return;
-  if (H.a && H.b) startGame(H.a, H.b, H.label);
+  if (H.a && H.b && !H.b.disambig) startGame(H.a, H.b, H.label);
   else prepare(H.from, H.to, H.label, $("d-err"), $("d-start"));
 });
 $("d-draw").addEventListener("click", drawPair);
