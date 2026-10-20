@@ -671,7 +671,7 @@ function setHome(from, to, label){
   });
 }
 function showErr(el, msg){ el.textContent = msg; el.hidden = false; }
-function setDaily(){ const [f, t] = dailyPair(); setHome(f, t, { text: todayLabel(), daily: true }); }
+function setDaily(){ const [f, t] = dailyPair(); setHome(f, t, { text: todayLabel(), daily: true, pair: f + "→" + t }); }
 function drawPair(){
   let p;
   do { p = PAIRS[Math.floor(Math.random() * PAIRS.length)]; } while (H && PAIRS.length > 1 && p[0] === H.from && p[1] === H.to);
@@ -703,7 +703,7 @@ function startGame(a, b, label){
   if (G) { clearInterval(G.timer); if (G.ctrl) G.ctrl.abort(); }
   G = {
     a, b, label, from: a.title, to: b.title,
-    path: [], moves: 0, t0: 0, timer: null, busy: false, ctrl: null, done: false,
+    path: [], trail: [], moves: 0, t0: 0, timer: null, busy: false, ctrl: null, done: false,
     aliases: new Set([norm(b.title)]), last: null
   };
   const g = G;
@@ -736,11 +736,12 @@ function setStatus(kind, text){
   s.hidden = false;
 }
 
-async function go(title, count){
+// trail は「一句戻る」で戻れる道。戻った時は積まずに一つ下ろす（path には戻った句も残る）
+async function go(title, count, isBack){
   const g = G;
   if (!g || g.done || g.busy) return;
   const t = norm(title);
-  g.last = { title: t, count };
+  g.last = { title: t, count, isBack };
 
   // 挙句（またはその別名）へのリンクなら、その場で満尾
   if (count && g.aliases.has(t)) {
@@ -761,6 +762,7 @@ async function go(title, count){
     const c = cleanArticle(r.html);
     if (count) g.moves++;
     g.path.push(r.title);
+    if (isBack) g.trail.pop(); else g.trail.push(r.title);
     if (count && (norm(r.title) === norm(g.to) || g.aliases.has(norm(r.title)))) {
       g.path[g.path.length - 1] = g.to;
       return finish(true);
@@ -801,7 +803,7 @@ function renderArticle(title, c){
 function updateBar(){
   if (!G) return;
   $("s-steps").textContent = String(G.moves);
-  $("g-back").disabled = G.busy || G.path.length < 2;
+  $("g-back").disabled = G.busy || G.trail.length < 2;
 }
 function tick(){ if (G && G.t0 && !G.done) $("s-time").textContent = clock(Date.now() - G.t0); }
 
@@ -846,7 +848,7 @@ function finish(won){
   if (won && g.label.daily) {
     const k = "daily:" + todayKey();
     const prev = store.get(k);
-    const pair = g.from + "→" + g.to;
+    const pair = g.label.pair;
     if (!prev || prev.pair !== pair || g.moves < prev.moves || (g.moves === prev.moves && ms < prev.ms)) {
       store.set(k, { pair, moves: g.moves, ms, rank: rank.name });
     }
@@ -941,8 +943,8 @@ document.addEventListener("keydown", (e) => {
   }
 });
 $("g-back").addEventListener("click", () => {
-  if (!G || G.path.length < 2) return;
-  go(G.path[G.path.length - 2], true);
+  if (!G || G.trail.length < 2) return;
+  go(G.trail[G.trail.length - 2], true, true);
 });
 $("g-quit").addEventListener("click", () => {
   const q = $("g-quit");
@@ -954,7 +956,7 @@ $("g-quit").addEventListener("click", () => {
   quitTimer = setTimeout(resetQuit, 3000);
 });
 $("status-retry").addEventListener("click", () => {
-  if (G && G.last) go(G.last.title, G.last.count);
+  if (G && G.last) go(G.last.title, G.last.count, G.last.isBack);
 });
 
 $("r-showpath").addEventListener("change", (e) => { $("r-share").textContent = shareText(e.target.checked); });
