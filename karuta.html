@@ -139,8 +139,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,label:focus-within{outl
 .fuda.to-cpu{transform:translateY(-40px);opacity:0}
 .fuda.miss{animation:shake .35s}
 @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
-.bottom{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-block:.5rem 1.2rem}
-.bottom .acts{display:flex;gap:.5rem}
+.bottom{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.6rem 1rem;padding-block:.5rem 1.2rem}
+.bottom .acts{display:flex;flex-wrap:wrap;gap:.4rem}
 
 /* 結果 */
 .res{padding-block:2.5rem 3.5rem}
@@ -168,7 +168,7 @@ footer a{color:var(--ink-2)}
 <section id="home" class="view">
   <div class="wrap top">
     <h1 class="brand"><span>ウィキペディア</span><span>かるた</span></h1>
-    <p class="lead">読み札は記事の書き出し、取り札は記事の名前。題の言葉は〓で伏せてあり、読み上げは一文字ずつ進む。何の記事か分かったところで札を払う。</p>
+    <p class="lead">読み札は記事の書き出し、取り札は記事の名前。読手が声で読み上げ、題の言葉は伏せて「まるまる」と読む。何の記事か分かったところで札を払う。</p>
   </div>
   <div class="tatami hero" style="margin-top:1.4rem" aria-hidden="true"><div class="wrap"><div class="spread">
     <span class="fuda s1">竹取物語</span><span class="fuda s1">寿司</span><span class="fuda s2">富士山</span><span class="fuda s2">新幹線</span><span class="fuda s1">能</span>
@@ -208,7 +208,7 @@ footer a{color:var(--ink-2)}
           <li>違う札に触れたり、空札のときにどれかに触れたりするとお手つき。相手に一枚入り、その読みの間はもう取れない。</li>
           <li>場の札がなくなったらおしまい。多く取ったほうの勝ち。</li>
         </ol>
-        <p>読み始める前に、札の場所を覚える暗記の時間がある。競技かるたの本式では十五分、ここでは十五秒。</p>
+        <p>読み始める前に、札の場所を覚える暗記の時間がある。競技かるたの本式では十五分、ここでは十五秒。読み上げの声は端末に入っている日本語の声を使う。声を止めると字だけで読まれる。</p>
       </div>
     </section>
 
@@ -230,6 +230,7 @@ footer a{color:var(--ink-2)}
     <span class="side" style="padding:0"><span><span class="who">自分</span><b id="me-n">0</b>枚</span><span class="ote" id="me-ote"></span></span>
     <span class="acts">
       <button type="button" class="btn sm" id="g-go">読み始める</button>
+      <button type="button" class="btn sm" id="g-voice" aria-pressed="true">声：読む</button>
       <button type="button" class="btn sm" id="g-sound" aria-pressed="true">音：鳴る</button>
       <button type="button" class="btn sm" id="g-quit">やめる</button>
     </span>
@@ -501,6 +502,7 @@ function remaining(){ return G.field.filter((f) => f.state === "on").length; }
 
 function startReading(){
   clearTimers();
+  hush();
   $("g-go").hidden = true;
   if (remaining() === 0) return end();
   G.idx++;
@@ -511,28 +513,90 @@ function startReading(){
   G.phase = "read";
   G.frozen = false;
   G.shown = 0;
+  G.len = [...card.masked].length;
+  G.readDone = false;
   $("y-head").textContent = kan(G.idx + 1) + "枚目";
   $("y-left").textContent = "場に" + kan(remaining()) + "枚";
   $("y-note").textContent = "";
   $("y-note").className = "yomi-note";
   drawText();
-  const text = [...card.masked];
-  G.tick = setInterval(() => {
-    G.shown = Math.min(text.length, G.shown + 1);
-    drawText();
-    if (G.shown >= text.length) {
-      clearInterval(G.tick); G.tick = null;
-      if (G.cur.kara) later(() => settle("kara"), 1500);
-    }
-  }, 1000 / CPS);
-  // 相手の手
-  const lv = G.lv, n = text.length;
-  if (!G.cur.kara) {
-    const at = (lv.lo + Math.random() * (lv.hi - lv.lo)) * n;
-    later(() => cpuTake(), (Math.min(at, n + 6) / CPS) * 1000 + lv.react);
-  } else if (Math.random() < lv.ote) {
-    later(() => cpuOtetsuki(), (Math.random() * .6 + .2) * (n / CPS) * 1000);
+  // 相手は「何文字目まで聞いたら分かるか」を決めておき、読みがそこまで来たら手を出す
+  const lv = G.lv, n = G.len;
+  G.cpuAt = G.cur.kara ? null : (lv.lo + Math.random() * (lv.hi - lv.lo)) * n;
+  G.oteAt = (G.cur.kara && Math.random() < lv.ote) ? (Math.random() * .6 + .2) * n : null;
+  // 字は時計で進め、声が読んだ位置の知らせが来ればそちらに合わせて先へ送る
+  const speaking = voiceOn && speak(card);
+  G.tick = setInterval(() => reveal(G.shown + 1), 1000 / (speaking ? VOICE_CPS : CPS));
+}
+
+function reveal(k){
+  if (!G || G.phase !== "read" || k <= G.shown) return;
+  G.shown = Math.min(G.len, Math.floor(k));
+  drawText();
+  if (G.cpuAt !== null && G.shown >= G.cpuAt) { G.cpuAt = null; later(cpuTake, G.lv.react); }
+  if (G.oteAt !== null && G.shown >= G.oteAt) { G.oteAt = null; cpuOtetsuki(); }
+  if (G.shown >= G.len && !G.readDone) {
+    G.readDone = true;
+    clearInterval(G.tick); G.tick = null;
+    if (G.cur.kara) later(() => settle("kara"), 1500);
+    // 最後まで聞いてから取る相手
+    else if (G.cpuAt !== null) { const rest = (G.cpuAt - G.len) / CPS * 1000; G.cpuAt = null; later(cpuTake, rest + G.lv.react); }
   }
+}
+
+/* ---------- 読手の声 ---------- */
+const VOICE_CPS = 6.5;      // 声で読むときの字の進み（声の知らせが無い端末の目安）
+let jaVoice = null, voiceOn = false, voiceWanted = store.get("voice") !== false, voiceUnlocked = false;
+const synth = window.speechSynthesis || null;
+function pickVoice(){
+  if (!synth) return;
+  const vs = synth.getVoices().filter((v) => /^ja/i.test(v.lang));
+  jaVoice = vs.find((v) => v.localService) || vs[0] || null;
+  voiceOn = !!jaVoice && voiceWanted;
+  voiceLabel();
+}
+if (synth) { pickVoice(); synth.addEventListener && synth.addEventListener("voiceschanged", pickVoice); }
+function utter(text){
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "ja-JP"; if (jaVoice) u.voice = jaVoice; u.rate = 1.1; u.pitch = 1;
+  return u;
+}
+// 伏せ字は「まるまる」と読む。声の位置（話した文の何文字目）を画面の何文字目かに直す表も作る
+function speak(card){
+  if (!synth || !jaVoice) return false;
+  const shown = [...card.masked];
+  let said = "", map = [];
+  for (let i = 0; i < shown.length; i++) {
+    if (shown[i] === "〓" && shown[i + 1] === "〓") { for (const c of "まるまる") { said += c; map.push(i); } i++; continue; }
+    said += shown[i]; map.push(i);
+  }
+  const g = G, u = utter(said);
+  u.onboundary = (e) => { if (G !== g || g.phase !== "read") return; const j = map[Math.min(map.length - 1, e.charIndex + (e.charLength || 1))]; if (j != null) reveal(j); };
+  u.onend = () => { if (G === g && g.phase === "read") reveal(g.len); };
+  synth.cancel();
+  synth.speak(u);
+  return true;
+}
+function hush(){ if (synth) synth.cancel(); }
+function sayName(name){
+  if (!voiceOn || !synth) return;
+  hush();
+  setTimeout(() => synth.speak(utter(name)), 60);
+}
+// 声もスマホでは指で触れた瞬間に一度鳴らしておかないと、あとから読めない
+function wakeVoice(){
+  if (voiceUnlocked || !synth || !voiceOn) return;
+  voiceUnlocked = true;
+  const u = utter(" "); u.volume = 0; synth.speak(u);
+}
+document.addEventListener("pointerdown", wakeVoice, { capture: true });
+function voiceLabel(){
+  const b = $("g-voice");
+  if (!b) return;
+  if (!jaVoice) { b.textContent = "声：無し"; b.disabled = true; b.title = "この端末には日本語の読み上げの声がありません"; return; }
+  b.disabled = false; b.title = "";
+  b.textContent = voiceOn ? "声：読む" : "声：読まない";
+  b.setAttribute("aria-pressed", String(voiceOn));
 }
 
 function drawText(){
@@ -590,6 +654,7 @@ $("ba").addEventListener("click", (e) => {
 
 function settle(how){
   clearTimers();
+  sayName(G.cur.card.name);
   G.phase = "after";
   const c = G.cur;
   if (how === "me") { G.me++; takeCard(c.slot, "me"); }
@@ -612,6 +677,7 @@ function settle(how){
 
 function end(){
   clearTimers();
+  setTimeout(hush, 1200);
   G.phase = "end";
   const won = G.me > G.cpu, draw = G.me === G.cpu;
   $("r-kind").textContent = G.deck.label + "・相手は" + G.lv.name;
@@ -669,7 +735,7 @@ $("h-start").addEventListener("click", async () => {
   }
 });
 $("g-go").addEventListener("click", () => { if (G && G.phase === "anki") startReading(); });
-$("g-quit").addEventListener("click", () => { if (!G) return; clearTimers(); G = null; showRecord(); show("home"); });
+$("g-quit").addEventListener("click", () => { if (!G) return; clearTimers(); hush(); G = null; showRecord(); show("home"); });
 function soundLabel(){ $("g-sound").textContent = sound ? "音：鳴る" : "音：鳴らない"; $("g-sound").setAttribute("aria-pressed", String(sound)); }
 $("g-sound").addEventListener("click", () => { sound = !sound; store.set("sound", sound); soundLabel(); slap(true); });
 $("r-again").addEventListener("click", () => { if (lastDeck) begin(lastDeck, G ? G.lvKey : selected("lv")); });
@@ -685,6 +751,8 @@ $("r-copy").addEventListener("click", () => {
 const savedLv = store.get("lv");
 if (savedLv && LEVELS[savedLv]) document.querySelector('input[name="lv"][value="' + savedLv + '"]').checked = true;
 soundLabel();
+voiceLabel();
+$("g-voice").addEventListener("click", () => { voiceWanted = !voiceOn; voiceOn = voiceWanted && !!jaVoice; store.set("voice", voiceWanted); voiceLabel(); if (!voiceOn) hush(); else { voiceUnlocked = false; wakeVoice(); } });
 showRecord();
 })();
 </script>
