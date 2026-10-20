@@ -129,7 +129,8 @@ body.playing::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-ar
 .kaishi li.goal .no{color:var(--seal)}
 .kaishi li.goal.done{border-style:solid;opacity:1;font-weight:700}
 .kaishi li.goal.miss{opacity:.5}
-.kaishi.big{padding-block:1.4rem}
+/* 結果の懐紙は折り返して、発句から挙句まで一度に見せる（右上から読み、段を下りる） */
+.kaishi.big{padding-block:1.4rem;flex-wrap:wrap;overflow:visible;row-gap:1.2rem}
 .kaishi.big li{font-size:1.3rem;max-height:12em;padding-inline:.85rem}
 .kaishi.big li.cur{color:var(--ink);font-weight:500}
 .kaishi.big li:not(.goal):not(.gap){color:var(--ink)}
@@ -149,6 +150,7 @@ body.playing::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-ar
 .art h4{font-size:1rem;margin:1.4em 0 .4em}
 .art a.wl{color:var(--link);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.22em;text-decoration-color:color-mix(in srgb,var(--link) 45%,transparent);border-radius:2px;cursor:pointer}
 .art a.wl:hover{background:var(--link-bg);text-decoration-color:var(--link)}
+.art a.wl.seen{color:var(--ink-2);text-decoration-style:dotted;text-decoration-color:var(--ink-2)}
 .art a.anchor{color:inherit}
 .art ul,.art ol{padding-left:1.5em;margin:0 0 1em}
 .art li{margin:.15em 0}
@@ -814,6 +816,11 @@ function renderArticle(title, c){
   $("art-title").textContent = title;
   $("art-links").textContent = "この記事から行ける先：" + c.count + "件";
   const art = $("art");
+  // もう詠んだ記事へのリンクは薄くして、堂々めぐりに気づけるようにする
+  const seen = new Set(G.path.map(norm));
+  c.node.querySelectorAll("a.wl").forEach((a) => {
+    if (seen.has(a.dataset.title)) { a.classList.add("seen"); a.title = a.dataset.title + "（もう詠んだ句）"; }
+  });
   art.replaceChildren(c.node);
   art.classList.remove("dim");
   const src = $("art-src");
